@@ -1,0 +1,10 @@
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+sqlalchemy>=2.0.0
+google-generativeai
+textblob
+python-dotenv
+httpx
