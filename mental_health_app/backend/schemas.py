@@ -76,19 +76,18 @@ class EmotionScoreResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     
     id: int
+    score: float
     date: datetime
-    sentiment_score: float
-    emotion_type: str
-    confidence: float
-    source_type: str
-    user_id: int
+    content_type: str
+    content_id: int
 
 class EmotionTrendResponse(BaseModel):
-    dates: List[str]
-    scores: List[float]
-    trend_direction: str
+    trend: str
+    average: float
     volatility: float
-    insights: List[str]
+    total_entries: int
+    classification: str
+    scores: List[EmotionScoreResponse]
 
 # Mental health resources
 class MentalHealthResourceResponse(BaseModel):

@@ -281,12 +281,13 @@ def get_emotion_trend(
     
     # Format scores with metadata
     formatted_scores = [
-        {
-            "score": score.score,
-            "date": score.created_at.isoformat(),
-            "content_type": score.content_type,
-            "content_id": score.content_id
-        }
+        EmotionScoreResponse(
+            id=score.id,
+            score=score.score,
+            date=score.created_at,
+            content_type=score.content_type,
+            content_id=score.content_id
+        )
         for score in emotion_scores
     ]
     
