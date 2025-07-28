@@ -4,6 +4,7 @@ import '../../providers/auth_provider.dart';
 import '../diary/diary_screen.dart';
 import '../chat/chat_screen.dart';
 import '../emotions/emotion_tracking_screen.dart';
+import '../settings/settings_screen.dart';
 import 'dashboard_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -21,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const ChatScreen(),
     const DiaryScreen(),
     const EmotionTrackingScreen(),
+    const SettingsScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -55,6 +57,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.analytics),
             label: 'Emotions',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
       ),
