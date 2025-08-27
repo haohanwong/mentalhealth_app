@@ -35,24 +35,20 @@ Map<String, dynamic> _$ChatMessageCreateToJson(ChatMessageCreate instance) =>
 
 SentimentAnalysis _$SentimentAnalysisFromJson(Map<String, dynamic> json) =>
     SentimentAnalysis(
-      score: (json['score'] as num).toDouble(),
-      polarity: (json['polarity'] as num).toDouble(),
-      subjectivity: (json['subjectivity'] as num).toDouble(),
-      classification: json['classification'] as String,
+      score: (json['sentiment_score'] as num).toDouble(),
+      label: json['sentiment_label'] as String,
       confidence: (json['confidence'] as num).toDouble(),
-      keywordsFound: (json['keywords_found'] as List<dynamic>)
+      emotionKeywords: (json['emotion_keywords'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
     );
 
 Map<String, dynamic> _$SentimentAnalysisToJson(SentimentAnalysis instance) =>
     <String, dynamic>{
-      'score': instance.score,
-      'polarity': instance.polarity,
-      'subjectivity': instance.subjectivity,
-      'classification': instance.classification,
+      'sentiment_score': instance.score,
+      'sentiment_label': instance.label,
       'confidence': instance.confidence,
-      'keywords_found': instance.keywordsFound,
+      'emotion_keywords': instance.emotionKeywords,
     };
 
 ChatResponse _$ChatResponseFromJson(Map<String, dynamic> json) => ChatResponse(
