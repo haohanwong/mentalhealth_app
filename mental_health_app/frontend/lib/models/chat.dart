@@ -42,31 +42,29 @@ class ChatMessageCreate {
 
 @JsonSerializable()
 class SentimentAnalysis extends Equatable {
+  @JsonKey(name: 'sentiment_score')
   final double score;
-  final double polarity;
-  final double subjectivity;
-  final String classification;
+  @JsonKey(name: 'sentiment_label')
+  final String label;
   final double confidence;
-  @JsonKey(name: 'keywords_found')
-  final List<String> keywordsFound;
+  @JsonKey(name: 'emotion_keywords')
+  final List<String> emotionKeywords;
 
   const SentimentAnalysis({
     required this.score,
-    required this.polarity,
-    required this.subjectivity,
-    required this.classification,
+    required this.label,
     required this.confidence,
-    required this.keywordsFound,
+    required this.emotionKeywords,
   });
 
   factory SentimentAnalysis.fromJson(Map<String, dynamic> json) => _$SentimentAnalysisFromJson(json);
   Map<String, dynamic> toJson() => _$SentimentAnalysisToJson(this);
 
   @override
-  List<Object> get props => [score, polarity, subjectivity, classification, confidence, keywordsFound];
+  List<Object> get props => [score, label, confidence, emotionKeywords];
 
   String get emoji {
-    switch (classification) {
+    switch (label) {
       case 'very_positive':
         return '😄';
       case 'positive':
@@ -82,8 +80,8 @@ class SentimentAnalysis extends Equatable {
     }
   }
 
-  String get label {
-    switch (classification) {
+  String get labelText {
+    switch (label) {
       case 'very_positive':
         return 'Very Positive';
       case 'positive':
