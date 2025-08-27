@@ -17,6 +17,7 @@ from schemas import (
     SentimentAnalysisResponse, MentalHealthResources
 )
 from gemini_service import gemini_service
+from firebase_logging import firestore_logger
 from sentiment_analysis import sentiment_analyzer
 
 # Create FastAPI app
@@ -246,6 +247,24 @@ async def chat_with_bot(
     db.add(emotion_score)
     db.commit()
     
+    # Firestore logging (optional)
+    try:
+        if firestore_logger.is_enabled():
+            firestore_logger.log_chat(
+                user_id=current_user.id,
+                payload={
+                    "user_id": current_user.id,
+                    "chat_id": chat_message.id,
+                    "message": message.message,
+                    "response": bot_response,
+                    "sentiment": sentiment_result,
+                    "created_at": chat_message.created_at.isoformat(),
+                    "source": "backend",
+                },
+            )
+    except Exception as _:
+        pass
+
     return ChatResponse(
         response=bot_response,
         sentiment_analysis=SentimentAnalysisResponse(**sentiment_result),
