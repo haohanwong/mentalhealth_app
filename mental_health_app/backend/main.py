@@ -18,6 +18,7 @@ from schemas import (
 )
 from gemini_service import gemini_service
 from sentiment_analysis import sentiment_analyzer
+from firebase_service import get_firebase_service
 
 # Create FastAPI app
 app = FastAPI(
@@ -210,7 +211,9 @@ async def chat_with_bot(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Get recent chat history for context
+    firebase_service = get_firebase_service()
+    
+    # Get recent chat history for context (from local DB for faster response)
     recent_chats = db.query(ChatMessage).filter(
         ChatMessage.user_id == current_user.id
     ).order_by(ChatMessage.created_at.desc()).limit(5).all()
@@ -225,7 +228,7 @@ async def chat_with_bot(
         message.message, conversation_history
     )
     
-    # Save chat message
+    # Save chat message to local database
     chat_message = ChatMessage(
         message=message.message,
         response=bot_response,
@@ -237,6 +240,8 @@ async def chat_with_bot(
     
     # Analyze sentiment of user's message
     sentiment_result = sentiment_analyzer.analyze_sentiment(message.message)
+    
+    # Save emotion score to local database
     emotion_score = EmotionScore(
         score=sentiment_result["sentiment_score"],
         content_type="chat",
@@ -245,6 +250,28 @@ async def chat_with_bot(
     )
     db.add(emotion_score)
     db.commit()
+    
+    # Save to Firebase (async, don't wait for completion to avoid delay)
+    try:
+        # Save chat message to Firebase
+        await firebase_service.save_chat_message(
+            user_id=current_user.id,
+            message=message.message,
+            response=bot_response,
+            sentiment_data=sentiment_result
+        )
+        
+        # Save emotion score to Firebase
+        await firebase_service.save_emotion_score(
+            user_id=current_user.id,
+            score=sentiment_result["sentiment_score"],
+            content_type="chat",
+            content_id=str(chat_message.id),
+            analysis_data=sentiment_result
+        )
+    except Exception as e:
+        print(f"Warning: Failed to save to Firebase: {e}")
+        # Continue without Firebase - local DB is primary
     
     return ChatResponse(
         response=bot_response,
@@ -263,6 +290,24 @@ def get_chat_history(
         ChatMessage.user_id == current_user.id
     ).order_by(ChatMessage.created_at.desc()).offset(skip).limit(limit).all()
     return messages
+
+@app.get("/chat/history/firebase")
+async def get_chat_history_firebase(
+    limit: int = 20,
+    last_doc_id: str = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get chat history from Firebase Firestore"""
+    firebase_service = get_firebase_service()
+    try:
+        messages = await firebase_service.get_chat_history(
+            user_id=current_user.id,
+            limit=limit,
+            last_doc_id=last_doc_id
+        )
+        return {"messages": messages, "count": len(messages)}
+    except Exception as e:
+        return {"error": str(e), "messages": [], "count": 0}
 
 # Emotion tracking endpoints
 @app.get("/emotions/trend", response_model=EmotionTrendResponse)

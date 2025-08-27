@@ -8,3 +8,4 @@ google-generativeai
 textblob
 python-dotenv
 httpx
+firebase-admin>=6.2.0
